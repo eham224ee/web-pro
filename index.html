@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#160c13">
+    <title>A little something for Tasfia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --ink: #fff8f4;
+            --muted: #c3aeb6;
+            --rose: #ee8299;
+            --rose-deep: #d65172;
+            --night: #160c13;
+            --serif: "Playfair Display", Georgia, serif;
+            --sans: "DM Sans", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background: var(--night);
+        }
+
+        body {
+            min-width: 0;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            color: var(--ink);
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(119, 43, 68, 0.22), transparent 44rem),
+                var(--night);
+            font-family: var(--sans);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            color: inherit;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            z-index: 0;
+            width: 28rem;
+            height: 28rem;
+            border-radius: 50%;
+            background: rgba(195, 65, 98, 0.12);
+            filter: blur(100px);
+            pointer-events: none;
+        }
+
+        .ambient-glow-one {
+            top: -19rem;
+            left: -10rem;
+        }
+
+        .ambient-glow-two {
+            right: -17rem;
+            bottom: -19rem;
+            background: rgba(214, 137, 120, 0.09);
+        }
+
+        .screen {
+            position: fixed;
+            z-index: 10;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: rgba(22, 12, 19, 0.72);
+            backdrop-filter: blur(18px);
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+
+        .screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: scale(0.985);
+        }
+
+        .gate-card,
+        .photo-card {
+            position: relative;
+            width: min(100%, 440px);
+            overflow: hidden;
+            border: 1px solid rgba(255, 224, 230, 0.13);
+            border-radius: 28px;
+            background:
+                linear-gradient(145deg, rgba(255, 242, 240, 0.075), transparent 42%),
+                rgba(42, 23, 34, 0.86);
+            box-shadow:
+                0 32px 90px rgba(0, 0, 0, 0.38),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .gate-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: clamp(30px, 8vw, 48px);
+            text-align: center;
+            animation: card-arrive 800ms cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+        .eyebrow {
+            color: var(--rose);
+            font-size: 0.67rem;
+            font-weight: 700;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+        }
+
+        .gate-card h1 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(2.2rem, 8vw, 3.2rem);
+            font-weight: 400;
+            letter-spacing: -0.045em;
+            line-height: 1.12;
+        }
+
+        .gate-card p {
+            margin: -8px 0 2px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        .button-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .button {
+            min-height: 50px;
+            padding: 13px 20px;
+            border: 1px solid rgba(255, 238, 241, 0.16);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.055);
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition:
+                transform 350ms cubic-bezier(.2, .8, .2, 1),
+                background 250ms ease,
+                border-color 250ms ease,
+                box-shadow 250ms ease,
+                opacity 350ms ease;
+        }
+
+        .button:hover {
+            border-color: rgba(255, 219, 226, 0.38);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid #ffc2ce;
+            outline-offset: 4px;
+        }
+
+        .button-primary {
+            border-color: transparent;
+            background: linear-gradient(110deg, #ed91a5, #d95f7d);
+            box-shadow: 0 10px 28px rgba(196, 66, 97, 0.26);
+            color: #28111b;
+        }
+
+        .button-primary:hover {
+            border-color: transparent;
+            background: linear-gradient(110deg, #f3a5b4, #e8738e);
+            box-shadow: 0 12px 34px rgba(196, 66, 97, 0.36);
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 52px;
+            padding: 13px 18px;
+            border: 1px solid rgba(255, 238, 241, 0.16);
+            border-radius: 14px;
+            background: rgba(12, 7, 11, 0.4);
+            color: var(--ink);
+            text-align: center;
+        }
+
+        .text-input::placeholder {
+            color: #9c8790;
+        }
+
+        .error-msg {
+            min-height: 1.2em;
+            margin: -8px 0 0;
+            color: #ff9aab;
+            font-size: 0.82rem;
+            opacity: 0;
+            transition: opacity 200ms ease;
+        }
+
+        .error-msg.visible {
+            opacity: 1;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            display: none;
+            width: 100%;
+            height: 100vh;
+            height: 100svh;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+        }
+
+        .main-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .main-container.active {
+            display: block;
+        }
+
+        .snap-section {
+            position: relative;
+            display: grid;
+            min-height: 100vh;
+            min-height: 100svh;
+            place-items: center;
+            padding: 48px 24px;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
+
+        .snap-section::before {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 48%, rgba(102, 39, 61, 0.24), transparent 58%),
+                linear-gradient(180deg, rgba(22, 12, 19, 0.08), rgba(22, 12, 19, 0.42));
+            content: "";
+            pointer-events: none;
+        }
+
+        .story-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: min(100%, 460px);
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 700ms ease, transform 700ms cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .story-content.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .story-index {
+            color: #d0aeba;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.19em;
+            text-transform: uppercase;
+        }
+
+        .photo-card {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 19px;
+            padding: clamp(13px, 3vw, 17px);
+            border-radius: 24px;
+        }
+
+        .img-wrapper {
+            display: grid;
+            width: 100%;
+            min-height: 210px;
+            max-height: 53svh;
+            place-items: center;
+            overflow: hidden;
+            border: 1px solid rgba(255, 234, 237, 0.1);
+            border-radius: 16px;
+            background: rgba(12, 8, 11, 0.6);
+        }
+
+        .img-wrapper img {
+            display: block;
+            width: 100%;
+            max-height: 53svh;
+            object-fit: contain;
+        }
+
+        .desc-box {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 0 8px 5px;
+            text-align: center;
+        }
+
+        .desc-box h2 {
+            margin: 0;
+            color: #f4b1bf;
+            font-family: var(--serif);
+            font-size: clamp(1.45rem, 5vw, 1.8rem);
+            font-weight: 400;
+            letter-spacing: -0.025em;
+        }
+
+        .desc-box p {
+            max-width: 340px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.86rem;
+            line-height: 1.65;
+        }
+
+        .scroll-cue {
+            color: #bda3ae;
+            font-size: 0.68rem;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            animation: cue-bob 2s ease-in-out infinite;
+        }
+
+        .final-card {
+            gap: 23px;
+            max-width: 470px;
+            padding: clamp(28px, 8vw, 46px);
+            text-align: center;
+        }
+
+        .heart-seal {
+            display: grid;
+            width: 56px;
+            height: 56px;
+            place-items: center;
+            border: 1px solid rgba(244, 177, 191, 0.24);
+            border-radius: 50%;
+            background: rgba(229, 121, 147, 0.1);
+            color: #f1a2b3;
+            font-size: 1.35rem;
+            box-shadow: 0 0 40px rgba(229, 121, 147, 0.12);
+        }
+
+        #questionContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #questionContainer[hidden] {
+            display: none;
+        }
+
+        .question-title {
+            max-width: 350px;
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(1.9rem, 7vw, 2.65rem);
+            font-weight: 400;
+            letter-spacing: -0.04em;
+            line-height: 1.18;
+        }
+
+        .question-subtitle {
+            margin: -12px 0 2px;
+            color: var(--muted);
+            font-size: 0.87rem;
+            line-height: 1.6;
+        }
+
+        .action-row {
+            position: relative;
+            display: flex;
+            width: 100%;
+            min-height: 92px;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+
+        .action-row .button {
+            position: absolute;
+            top: 5px;
+            width: 50%;
+            min-height: 54px;
+            padding-right: 10px;
+            padding-left: 10px;
+            white-space: nowrap;
+            transform-origin: center;
+            transition:
+                left 650ms cubic-bezier(.22, 1, .36, 1),
+                top 650ms cubic-bezier(.22, 1, .36, 1),
+                transform 650ms cubic-bezier(.22, 1, .36, 1),
+                opacity 350ms ease,
+                background 250ms ease,
+                box-shadow 250ms ease;
+        }
+
+        .btn-yes {
+            left: 0;
+            transform: scale(var(--yes-scale, 1));
+        }
+
+        .btn-no {
+            left: 63%;
+            width: 32% !important;
+            transform: scale(var(--no-scale, 1));
+        }
+
+        .btn-no.vanishing {
+            opacity: 0;
+            transform: scale(0) rotate(18deg);
+            pointer-events: none;
+        }
+
+        .proposal-card {
+            transition: opacity 380ms ease, transform 500ms cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .proposal-card[hidden] {
+            display: none;
+        }
+
+        .proposal-card.leaving {
+            opacity: 0;
+            transform: translateY(-12px) scale(0.96);
+            pointer-events: none;
+        }
+
+        .story-content.celebrating > .story-index,
+        .story-content.celebrating > .scroll-cue {
+            display: none;
+        }
+
+        .celebration-card[hidden] {
+            display: none;
+        }
+
+        .celebration-card {
+            position: relative;
+            min-height: 340px;
+            justify-content: center;
+            overflow: hidden;
+            isolation: isolate;
+            border-color: rgba(255, 213, 224, 0.23);
+            background:
+                radial-gradient(ellipse at 50% 42%, rgba(196, 74, 112, 0.22), transparent 64%),
+                linear-gradient(145deg, rgba(255, 242, 240, 0.09), transparent 45%),
+                rgba(42, 23, 34, 0.96);
+            box-shadow:
+                0 34px 100px rgba(0, 0, 0, 0.48),
+                0 0 65px rgba(207, 87, 120, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.09);
+            animation: celebration-arrive 900ms cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .celebration-card::before,
+        .celebration-card::after {
+            position: absolute;
+            z-index: -1;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(244, 177, 191, 0.1);
+            border-radius: 50%;
+            content: "";
+            pointer-events: none;
+        }
+
+        .celebration-card::before {
+            top: -95px;
+            left: -76px;
+        }
+
+        .celebration-card::after {
+            right: -88px;
+            bottom: -96px;
+            width: 190px;
+            height: 190px;
+        }
+
+        .love-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 2px;
+            animation: message-arrive 1000ms 180ms cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .love-message h2 {
+            margin: 0;
+            background: linear-gradient(110deg, #ffe2e6 12%, #f5adbd 50%, #fff0e8 88%);
+            background-clip: text;
+            color: transparent;
+            font-family: "Cormorant Garamond", var(--serif);
+            font-size: clamp(3.9rem, 15vw, 5.2rem);
+            font-style: italic;
+            font-weight: 600;
+            letter-spacing: -0.055em;
+            line-height: 0.95;
+            text-shadow: 0 10px 45px rgba(230, 129, 154, 0.12);
+        }
+
+        .love-message .heart-seal {
+            width: 64px;
+            height: 64px;
+            color: #ffd9e2;
+            font-size: 1.65rem;
+            animation: heart-pulse 2.2s ease-in-out infinite;
+        }
+
+        .love-message .eyebrow {
+            margin-top: 6px;
+            color: #f0adbd;
+        }
+
+        .love-message p {
+            max-width: 280px;
+            margin: 0;
+            color: #e4c4cd;
+            font-size: 0.9rem;
+            letter-spacing: 0.015em;
+            line-height: 1.65;
+        }
+
+        #heartCanvas {
+            position: fixed;
+            z-index: 1;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        @keyframes card-arrive {
+            from { opacity: 0; transform: translateY(18px) scale(0.985); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes message-arrive {
+            from { opacity: 0; transform: translateY(12px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes celebration-arrive {
+            0% { opacity: 0; transform: translateY(28px) scale(0.88) rotate(-1deg); }
+            70% { opacity: 1; transform: translateY(-3px) scale(1.015) rotate(0.3deg); }
+            100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+        }
+
+        @keyframes heart-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 24px rgba(229, 121, 147, 0.12); }
+            50% { transform: scale(1.08); box-shadow: 0 0 38px rgba(229, 121, 147, 0.3); }
+        }
+
+        @keyframes cue-bob {
+            0%, 100% { transform: translateY(0); opacity: 0.65; }
+            50% { transform: translateY(4px); opacity: 1; }
+        }
+
+        @media (max-width: 480px) {
+            .screen {
+                padding: 18px;
+            }
+
+            .snap-section {
+                padding: 35px 18px;
+            }
+
+            .story-content {
+                gap: 12px;
+            }
+
+            .img-wrapper,
+            .img-wrapper img {
+                max-height: 47svh;
+            }
+
+            .action-row {
+                min-height: 92px;
+            }
+
+            .final-card {
+                padding: 30px 22px;
+            }
+
+            .celebration-card {
+                min-height: 310px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow ambient-glow-one" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow-two" aria-hidden="true"></div>
+    <canvas id="heartCanvas" aria-hidden="true"></canvas>
+
+    <section id="step-gate" class="screen" aria-labelledby="gateTitle">
+        <div class="gate-card">
+            <span class="eyebrow">A little surprise</span>
+            <h1 id="gateTitle">Is this Tasfia?</h1>
+            <p>I made something just for you.<br>Come a little closer?</p>
+            <div class="button-stack">
+                <button class="button button-primary" type="button" onclick="goToPasscode()">Yes, it's me</button>
+                <button class="button" type="button" onclick="showWrongDoor()">I'm someone else</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="step-wrong" class="screen hidden" aria-labelledby="wrongTitle">
+        <div class="gate-card">
+            <span class="eyebrow">Oops</span>
+            <h1 id="wrongTitle">This little story isn't for you.</h1>
+            <p>There's someone special I'm hoping will find it.</p>
+            <button class="button button-primary" type="button" onclick="resetGate()">Go back</button>
+        </div>
+    </section>
+
+    <section id="step-pass" class="screen hidden" aria-labelledby="passTitle">
+        <form class="gate-card" onsubmit="event.preventDefault(); verifyPasscode()">
+            <span class="eyebrow">Just one little secret</span>
+            <h1 id="passTitle">A word only we know</h1>
+            <p>What's Eham's nickname?</p>
+            <input class="text-input" type="text" id="passInput" placeholder="Your secret answer..." autocomplete="off" aria-label="Passcode">
+            <button class="button button-primary" type="submit">Come on in</button>
+            <p id="errorMsg" class="error-msg" aria-live="polite">That's not quite it. Try again?</p>
+        </form>
+    </section>
+
+    <main id="mainContainer" class="main-container" tabindex="-1">
+        <section class="snap-section" aria-label="A little something for you, part one">
+            <div class="story-content">
+                <span class="story-index">01 &nbsp;·&nbsp; A little something for you</span>
+                <article class="photo-card">
+                    <div class="img-wrapper"><img src="1.png" alt="Tasfia, looking lovely in the soft light"></div>
+                    <div class="desc-box">
+                        <h2>Effortless grace</h2>
+                        <p>The way soft light finds you here—quiet, lovely, and impossible not to remember.</p>
+                    </div>
+                </article>
+                <span class="scroll-cue" aria-hidden="true">Scroll for the next little thing&nbsp; ↓</span>
+            </div>
+        </section>
+
+        <section class="snap-section" aria-label="A little something for you, part two">
+            <div class="story-content">
+                <span class="story-index">02 &nbsp;·&nbsp; One of my favorite things</span>
+                <article class="photo-card">
+                    <div class="img-wrapper"><img src="2.png" alt="A close-up portrait of Tasfia"></div>
+                    <div class="desc-box">
+                        <h2>That look of yours</h2>
+                        <p>There's a whole universe in your eyes. I could get lost there and never mind the way back.</p>
+                    </div>
+                </article>
+                <span class="scroll-cue" aria-hidden="true">Keep going&nbsp; ↓</span>
+            </div>
+        </section>
+
+        <section class="snap-section" aria-label="A little something for you, part three">
+            <div class="story-content">
+                <span class="story-index">03 &nbsp;·&nbsp; You, being you</span>
+                <article class="photo-card">
+                    <div class="img-wrapper"><img src="3.png" alt="Tasfia in a favorite outfit"></div>
+                    <div class="desc-box">
+                        <h2>Your own kind of beautiful</h2>
+                        <p>You make every little thing look like it belongs in a daydream.</p>
+                    </div>
+                </article>
+                <span class="scroll-cue" aria-hidden="true">Almost there&nbsp; ↓</span>
+            </div>
+        </section>
+
+        <section class="snap-section" aria-label="A little something for you, part four">
+            <div class="story-content">
+                <span class="story-index">04 &nbsp;·&nbsp; And my favorite smile</span>
+                <article class="photo-card">
+                    <div class="img-wrapper"><img src="4.png" alt="Tasfia sharing a playful smile"></div>
+                    <div class="desc-box">
+                        <h2>Pure sunshine</h2>
+                        <p>Your playful, bright energy has a way of making my whole day feel lighter.</p>
+                    </div>
+                </article>
+                <span class="scroll-cue" aria-hidden="true">One last thing&nbsp; ↓</span>
+            </div>
+        </section>
+
+        <section class="snap-section" aria-label="The big question">
+            <div class="story-content">
+                <span class="story-index">05 &nbsp;·&nbsp; From my heart</span>
+                <article class="photo-card final-card proposal-card" id="proposalCard">
+                    <div class="heart-seal" aria-hidden="true">♡</div>
+                    <div id="questionContainer">
+                        <h2 class="question-title" id="questionText">So, Tasfia...</h2>
+                        <p class="question-subtitle">Will you make me the happiest and say yes?</p>
+                        <div class="action-row">
+                            <button class="button button-primary btn-yes" id="yesBtn" type="button" onclick="handleYes()">Yes ♡</button>
+                            <button class="button btn-no" id="noBtn" type="button" onclick="handleNo()">No</button>
+                        </div>
+                    </div>
+                </article>
+                <article class="photo-card final-card celebration-card" id="celebrationCard" aria-live="polite" tabindex="-1" hidden>
+                    <div class="love-message">
+                        <div class="heart-seal" aria-hidden="true">♡</div>
+                        <span class="eyebrow">To my favorite person</span>
+                        <h2>I love you</h2>
+                        <p>More than all the words on this little page could ever say.</p>
+                    </div>
+                </article>
+                <span class="scroll-cue" aria-hidden="true">Made with love, just for you</span>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function goToPasscode() {
+            document.getElementById("step-gate").classList.add("hidden");
+            document.getElementById("step-pass").classList.remove("hidden");
+            document.getElementById("passInput").focus();
+        }
+
+        function showWrongDoor() {
+            document.getElementById("step-gate").classList.add("hidden");
+            document.getElementById("step-wrong").classList.remove("hidden");
+        }
+
+        function resetGate() {
+            document.getElementById("step-wrong").classList.add("hidden");
+            document.getElementById("step-gate").classList.remove("hidden");
+        }
+
+        function sanitize(value) {
+            return value.toLowerCase().replace(/\s+/g, "");
+        }
+
+        function verifyPasscode() {
+            const passInput = document.getElementById("passInput");
+            const errorMsg = document.getElementById("errorMsg");
+
+            if (sanitize(passInput.value) === "enushark") {
+                document.getElementById("step-pass").classList.add("hidden");
+                const mainContainer = document.getElementById("mainContainer");
+                mainContainer.classList.add("active");
+                mainContainer.focus();
+                revealStories(mainContainer);
+            } else {
+                errorMsg.classList.add("visible");
+                window.setTimeout(() => errorMsg.classList.remove("visible"), 2500);
+            }
+        }
+
+        function revealStories(mainContainer) {
+            const stories = mainContainer.querySelectorAll(".story-content");
+            if (!("IntersectionObserver" in window)) {
+                stories.forEach((story) => story.classList.add("is-visible"));
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { root: mainContainer, threshold: 0.08 });
+
+            stories.forEach((story) => observer.observe(story));
+        }
+
+        let noClickCount = 0;
+        const noButtonLimit = 5;
+
+        function handleNo() {
+            noClickCount += 1;
+            const noButton = document.getElementById("noBtn");
+            const actionRow = document.querySelector(".action-row");
+            const questionText = document.getElementById("questionText");
+            const responses = [
+                "Are you sure?",
+                "Think about it...",
+                "One more little thought?",
+                "Pretty please?",
+                "You know you want to say yes ♡"
+            ];
+
+            if (noClickCount >= noButtonLimit) {
+                noButton.classList.add("vanishing");
+                noButton.disabled = true;
+                noButton.setAttribute("aria-hidden", "true");
+                document.getElementById("yesBtn").focus();
+                questionText.textContent = "Looks like it's just us and one answer ♡";
+                actionRow.setAttribute("aria-label", "The no button disappeared. Choose yes to continue.");
+                return;
+            }
+
+            const noScale = 1 - noClickCount * 0.1;
+            const yesScale = 1 + noClickCount * 0.06;
+            const noPositions = [
+                { left: 58, top: 5 },
+                { left: 66, top: 25 },
+                { left: 61, top: 0 },
+                { left: 68, top: 20 }
+            ];
+            const position = noPositions[(noClickCount - 1) % noPositions.length];
+            noButton.style.left = `${position.left}%`;
+            noButton.style.top = `${position.top}px`;
+            noButton.style.setProperty("--no-scale", noScale);
+            document.getElementById("yesBtn").style.setProperty("--yes-scale", yesScale);
+            questionText.textContent = responses[Math.min(noClickCount - 1, responses.length - 1)];
+            actionRow.setAttribute("aria-label", `No selected ${noClickCount} times. The yes button is getting bigger.`);
+        }
+
+        function handleYes() {
+            const proposalCard = document.getElementById("proposalCard");
+            const celebrationCard = document.getElementById("celebrationCard");
+            const storyContent = celebrationCard.closest(".story-content");
+            proposalCard.classList.add("leaving");
+            storyContent.classList.add("celebrating");
+            window.setTimeout(() => {
+                proposalCard.hidden = true;
+                celebrationCard.hidden = false;
+                celebrationCard.focus({ preventScroll: true });
+            }, 380);
+            startHeartRain();
+        }
+
+        function startHeartRain() {
+            const canvas = document.getElementById("heartCanvas");
+            const context = canvas.getContext("2d");
+            if (!context) return;
+
+            const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            const hearts = [];
+            const sparkles = [];
+            let animationFrame;
+
+            function resizeCanvas() {
+                const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = window.innerWidth * pixelRatio;
+                canvas.height = window.innerHeight * pixelRatio;
+                context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+            }
+
+            function drawHeart(x, y, size, opacity) {
+                context.save();
+                context.translate(x, y);
+                context.scale(size / 20, size / 20);
+                context.fillStyle = `rgba(238, 130, 153, ${opacity})`;
+                context.beginPath();
+                context.moveTo(0, 2);
+                context.bezierCurveTo(-3, -3, -10, -1, -10, 5);
+                context.bezierCurveTo(-10, 11, -3, 16, 0, 19);
+                context.bezierCurveTo(3, 16, 10, 11, 10, 5);
+                context.bezierCurveTo(10, -1, 3, -3, 0, 2);
+                context.fill();
+                context.restore();
+            }
+
+            function drawSparkle(sparkle, time) {
+                const shimmer = 0.3 + (Math.sin(time * sparkle.speed + sparkle.phase) + 1) * 0.32;
+                context.save();
+                context.translate(sparkle.x, sparkle.y);
+                context.rotate(time * 0.00015 + sparkle.phase);
+                context.globalAlpha = shimmer;
+                context.shadowColor = "rgba(255, 222, 231, 0.9)";
+                context.shadowBlur = sparkle.size * 2;
+                context.fillStyle = "#fff0f2";
+                context.beginPath();
+                context.moveTo(0, -sparkle.size);
+                context.lineTo(sparkle.size * 0.22, -sparkle.size * 0.22);
+                context.lineTo(sparkle.size, 0);
+                context.lineTo(sparkle.size * 0.22, sparkle.size * 0.22);
+                context.lineTo(0, sparkle.size);
+                context.lineTo(-sparkle.size * 0.22, sparkle.size * 0.22);
+                context.lineTo(-sparkle.size, 0);
+                context.lineTo(-sparkle.size * 0.22, -sparkle.size * 0.22);
+                context.closePath();
+                context.fill();
+                context.restore();
+            }
+
+            resizeCanvas();
+            for (let index = 0; index < 44; index += 1) {
+                hearts.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight - window.innerHeight,
+                    size: Math.random() * 12 + 8,
+                    speed: Math.random() * 1.8 + 0.7,
+                    opacity: Math.random() * 0.45 + 0.25,
+                    drift: Math.random() * Math.PI * 2
+                });
+            }
+            for (let index = 0; index < 42; index += 1) {
+                sparkles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    size: Math.random() * 2.8 + 1.1,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: Math.random() * 0.003 + 0.001
+                });
+            }
+
+            function animate(time) {
+                context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                hearts.forEach((heart) => {
+                    heart.y += heart.speed;
+                    heart.drift += 0.018;
+                    heart.x += Math.sin(heart.drift) * 0.45;
+                    if (heart.y > window.innerHeight + 20) {
+                        heart.y = -20;
+                        heart.x = Math.random() * window.innerWidth;
+                    }
+                    drawHeart(heart.x, heart.y, heart.size, heart.opacity);
+                });
+                sparkles.forEach((sparkle) => drawSparkle(sparkle, time));
+                animationFrame = window.requestAnimationFrame(animate);
+            }
+
+            if (reducedMotion) {
+                hearts.slice(0, 12).forEach((heart) => drawHeart(heart.x, Math.random() * window.innerHeight, heart.size, heart.opacity));
+                sparkles.forEach((sparkle) => drawSparkle(sparkle, 0));
+                return;
+            }
+
+            animate();
+            window.addEventListener("resize", resizeCanvas);
+            window.addEventListener("pagehide", () => window.cancelAnimationFrame(animationFrame), { once: true });
+        }
+    </script>
+</body>
+</html>
